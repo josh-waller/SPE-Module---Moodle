@@ -1,0 +1,142 @@
+/* Custom styling for activity navigation tabs (secondary nav) to match quiz */
+.nav-tabs .nav-link,
+.nav-tabs .nav-link.active,
+.nav-tabs .dropdown-toggle,
+.secondary-navigation .nav-link,
+.secondary-navigation .nav-link.active {
+    color: #212529 !important; /* Moodle/Bootstrap default text color */
+    font-weight: 500;
+    background: none !important;
+}
+
+.nav-tabs .nav-link.active,
+.secondary-navigation .nav-link.active {
+    border-bottom: 2px solid #0d6efd !important; /* Moodle/Bootstrap primary */
+    color: #0d6efd !important;
+    background: none !important;
+}
+/*
+    Speval Module Form Styling
+    This CSS file makes the evaluation form look clean and modern.
+*/
+
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.speval-container {
+    max-width: 80%;
+    margin: 40px auto;
+    padding: 20px 60px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+}
+
+/* Styling for the form's heading */
+.speval-container h2 {
+    color: #3772b3;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1.8em;
+}
+
+/* Individual form rows for better spacing */
+.form-row {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.form-row label.criteria-text{
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.spebutton{
+    padding: 12px 24px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #3772b3;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.form-row label.scale-value{
+    font-weight: normal;
+    color: #555;
+    margin-right:25px; 
+    display:inline-block;
+}
+
+/* Styling for text input fields */
+.form-row input[type="number"],
+.form-row textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box; /* Ensures padding doesn't affect total width */
+}
+
+.form-row input[type="number"]:focus,
+.form-row textarea:focus {
+    border-color: #3772b3;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.form-row input[type="number"]{
+    width: 10%;
+}
+
+
+/* Styling for the submit button */
+.form-actions {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.form-actions button {
+    padding: 12px 24px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #3772b3;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.form-actions button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+
+.submit-button {
+    padding: 12px 24px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #3772b3;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.submit-buttonhover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
