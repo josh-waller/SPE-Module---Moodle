@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<XMLDB PATH="mod/speval/db" VERSION="2025100300" COMMENT="SPEval tables">
+    <TABLES>
+
+    <TABLE NAME="speval" COMMENT="Stores SPEval activity instances">
+        <FIELDS>
+            <FIELD NAME="id"                TYPE="int"  LENGTH="10" SEQUENCE="true" NOTNULL="true" COMMENT="Primary key"/>
+            <FIELD NAME="course"            TYPE="int"  LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Foreign key to mdl_course"/>
+            <FIELD NAME="name"              TYPE="char" LENGTH="255" SEQUENCE="false" NOTNULL="true" COMMENT="Activity name"/>
+            <FIELD NAME="intro"             TYPE="text"              SEQUENCE="false" NOTNULL="false" COMMENT="Activity description / instructions"/>
+            <FIELD NAME="introformat"       TYPE="int"  LENGTH="4"  SEQUENCE="false" NOTNULL="true" DEFAULT="1" COMMENT="Format of intro text (HTML=1, PLAIN=0)"/>
+            <FIELD NAME="linkedassign"      TYPE="int"  LENGTH="10" SEQUENCE="false" NOTNULL="false" COMMENT="Foreign key to mdl_assign, null means standalone"/>
+            <FIELD NAME="grouping"          TYPE="int"  LENGTH="10" SEQUENCE="false" NOTNULL="false" COMMENT="Used when linkedassign is null"/>
+            <FIELD NAME="timeopen"          TYPE="int"  LENGTH="10" SEQUENCE="false" NOTNULL="false" COMMENT="Timestamp when activity opens for students"/>
+            <FIELD NAME="timeclose"         TYPE="int"  LENGTH="10" SEQUENCE="false" NOTNULL="false" COMMENT="Timestamp when activity closes for students"/>
+            <FIELD NAME="overduehandling"   TYPE="char" LENGTH="20" NOTNULL="true"   DEFAULT="prevent" COMMENT="Late submission handling: prevent/allow/marklate"/>
+            <FIELD NAME="timemodified"      TYPE="int"  LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Last modification timestamp"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME="course_fk" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
+            <KEY NAME="linkedassign_fk" TYPE="foreign" FIELDS="linkedassign" REFTABLE="assign" REFFIELDS="id"/>
+            <KEY NAME="grouping_fk" TYPE="foreign" FIELDS="grouping" REFTABLE="groupings" REFFIELDS="id"/>
+        </KEYS>
+    </TABLE>
+
+    <TABLE NAME="speval_bank" COMMENT="Bank of evaluation criteria">
+        <FIELDS>
+            <FIELD NAME="id"            TYPE="int"  LENGTH="10" SEQUENCE="true" NOTNULL="true" COMMENT="Primary key"/>
+            <FIELD NAME="questiontext"  TYPE="text"             SEQUENCE="false" NOTNULL="true" COMMENT="Text of the question"/>
+            <FIELD NAME="courseid"      TYPE="int"  LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Course id"/>
+            <FIELD NAME="isopenquestion" TYPE="int" LENGTH="1" SEQUENCE="false" NOTNULL="true" DEFAULT="0" COMMENT="1=open question, 0=closed"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME="course_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+            <INDEX NAME="courseid_idx" UNIQUE="false" FIELDS="courseid"/>
+        </INDEXES>
+    </TABLE>
+
+
+    <TABLE NAME="speval_openquestion" COMMENT="Open questions linked to evaluations">
+        <FIELDS>
+            <FIELD NAME="id"            TYPE="int" LENGTH="10" SEQUENCE="true" NOTNULL="true" COMMENT="Primary key"/>
+            <FIELD NAME="spevalid"      TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Foreign key to speval activity"/>
+            <FIELD NAME="sortorder"     TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" DEFAULT="0" COMMENT="Order of question"/>
+            <FIELD NAME="questiontext"  TYPE="text"            SEQUENCE="false" NOTNULL="false" COMMENT="Text of the question"/>
+            <FIELD NAME="questionbankid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="false" COMMENT="Reference to speval_bank"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME="spevalid_fk" TYPE="foreign" FIELDS="spevalid" REFTABLE="speval" REFFIELDS="id"/>
+            <KEY NAME="questionbankid_fk" TYPE="foreign" FIELDS="questionbankid" REFTABLE="speval_bank" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+            <INDEX NAME="spevalid_idx" UNIQUE="false" FIELDS="spevalid"/>
+            <INDEX NAME="questionbankid_idx" UNIQUE="false" FIELDS="questionbankid"/>
+        </INDEXES>
+    </TABLE>
+
+
+    <TABLE NAME="speval_criteria" COMMENT="Criteria questions for an SPEval activity">
+        <FIELDS>
+            <FIELD NAME="id"              TYPE="int" LENGTH="10"  SEQUENCE="true" NOTNULL="true" COMMENT="Primary key"/>
+            <FIELD NAME="spevalid"        TYPE="int" LENGTH="10"  SEQUENCE="false" NOTNULL="true" COMMENT="Foreign key to speval"/>
+            <FIELD NAME="sortorder"       TYPE="int" LENGTH="4"   SEQUENCE="false" NOTNULL="true" COMMENT="Display order of criteria"/>
+            <FIELD NAME="questiontext"    TYPE="text"             SEQUENCE="false" NOTNULL="false" COMMENT="Text of the criterion / question"/>
+            <FIELD NAME="questionbankid"  TYPE="int" LENGTH="10"  SEQUENCE="false" NOTNULL="false" COMMENT="Foreign key to questionbank"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME="spevalid_fk" TYPE="foreign" FIELDS="spevalid" REFTABLE="speval" REFFIELDS="id"/>
+            <KEY NAME="questionbankid_fk" TYPE="foreign" FIELDS="questionbankid" REFTABLE="speval_bank" REFFIELDS="id"/>
+        </KEYS>
+    </TABLE>
+
+    <TABLE NAME="speval_eval" COMMENT="Stores peer evaluations">
+        <FIELDS>
+            <FIELD NAME="id"        TYPE="int" LENGTH="10"  SEQUENCE="true" NOTNULL="true"/>
+            <FIELD NAME="userid"    TYPE="int" LENGTH="10"  SEQUENCE="false" NOTNULL="true" COMMENT="Who gave the evaluation"/>
+            <FIELD NAME="peerid"     TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Who is being evaluated"/>
+            <FIELD NAME="spevalid"  TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" DEFAULT="0" COMMENT="The SPEval activity instance ID"/>
+            <FIELD NAME="criteria1" TYPE="int" LENGTH="4"   SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria2" TYPE="int" LENGTH="4"   SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria3" TYPE="int" LENGTH="4"   SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria4" TYPE="int" LENGTH="4"   SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria5" TYPE="int" LENGTH="4"   SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="comment1"  TYPE="text"             SEQUENCE="false" NOTNULL="false"/>
+            <FIELD NAME="comment2"  TYPE="text"             SEQUENCE="false" NOTNULL="false"/>
+            <FIELD NAME="timecreated" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME='spevalid_fk' TYPE='foreign' FIELDS='spevalid' REFTABLE='spevalid' REFFIELDS='id'/>
+            <KEY NAME='userid_fk' TYPE='foreign' FIELDS='userid' REFTABLE='user' REFFIELDS='id'/>
+            <KEY NAME='peerid_fk' TYPE='foreign' FIELDS='peerid' REFTABLE='user' REFFIELDS='id'/>
+        </KEYS>
+        <INDEXES>
+            <INDEX NAME="id" UNIQUE="true" FIELDS="id"/>
+            <INDEX NAME="spevalid" UNIQUE="false" FIELDS="spevalid"/>
+            <INDEX NAME="user_peer_speval_unique" UNIQUE="true" FIELDS="userid, peerid, spevalid"/>
+        </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="speval_draft" COMMENT="Stores autosaved draft evaluation submissions">
+        <FIELDS>
+            <FIELD NAME="id" TYPE="int" LENGTH="10" SEQUENCE="true" NOTNULL="true" COMMENT="Primary key"/>
+            <FIELD NAME="userid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Evaluator who owns the draft"/>
+            <FIELD NAME="peerid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Peer associated with this draft evaluation"/>
+            <FIELD NAME="spevalid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="The SPEval activity instance ID"/>
+            <FIELD NAME="criteria1" TYPE="int" LENGTH="4" SEQUENCE="false" NOTNULL="false" COMMENT="Draft score"/>
+            <FIELD NAME="criteria2" TYPE="int" LENGTH="4" SEQUENCE="false" NOTNULL="false" COMMENT="Draft score"/>
+            <FIELD NAME="criteria3" TYPE="int" LENGTH="4" SEQUENCE="false" NOTNULL="false" COMMENT="Draft score"/>
+            <FIELD NAME="criteria4" TYPE="int" LENGTH="4" SEQUENCE="false" NOTNULL="false" COMMENT="Draft score"/>
+            <FIELD NAME="criteria5" TYPE="int" LENGTH="4" SEQUENCE="false" NOTNULL="false" COMMENT="Draft score"/>
+            <FIELD NAME="comment1" TYPE="text" SEQUENCE="false" NOTNULL="false" COMMENT="Draft comment"/>
+            <FIELD NAME="comment2" TYPE="text" SEQUENCE="false" NOTNULL="false" COMMENT="Draft comment"/>
+            <FIELD NAME="timecreated" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Timestamp when draft was first created"/>
+            <FIELD NAME="timemodified" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Timestamp of last save"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME='spevalid_fk' TYPE='foreign' FIELDS='spevalid' REFTABLE='speval' REFFIELDS='id'/>
+            <KEY NAME='userid_fk' TYPE='foreign' FIELDS='userid' REFTABLE='user' REFFIELDS='id'/>
+            <KEY NAME='peerid_fk' TYPE='foreign' FIELDS='peerid' REFTABLE='user' REFFIELDS='id'/>
+        </KEYS>
+        <INDEXES>
+            <INDEX NAME="user_peer_speval_unique" UNIQUE="true" FIELDS="userid, peerid, spevalid"/>
+        </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="speval_grades" COMMENT="Stores calculated grades for peer evaluations">
+        <FIELDS>
+            <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="userid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="spevalid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria1" TYPE="number" LENGTH="10" DECIMALS="2" SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria2" TYPE="number" LENGTH="10" DECIMALS="2" SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria3" TYPE="number" LENGTH="10" DECIMALS="2" SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria4" TYPE="number" LENGTH="10" DECIMALS="2" SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="criteria5" TYPE="number" LENGTH="10" DECIMALS="2" SEQUENCE="false" NOTNULL="true" DEFAULT="0"/>
+            <FIELD NAME="finalgrade" TYPE="number" LENGTH="10" DECIMALS="2" SEQUENCE="false" NOTNULL="true" DEFAULT="0.00"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME='spevalid_fk' TYPE='foreign' FIELDS='spevalid' REFTABLE='speval' REFFIELDS='id'/>
+        </KEYS>
+        <INDEXES>
+            <INDEX NAME="userid_spevalid" UNIQUE="true" FIELDS="userid, spevalid"/>
+            <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="speval_flag" COMMENT="Stores AI flags per evaluator-peer pair">
+        <FIELDS>
+            <FIELD NAME="id" TYPE="int"     LENGTH="10" SEQUENCE="true" NOTNULL="true" COMMENT="Primary key"/>
+            <FIELD NAME="userid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Evaluator user id"/>
+            <FIELD NAME="peerid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Peer being evaluated"/>
+            <FIELD NAME="spevalid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="SPEval activity instance"/>
+            <FIELD NAME="grouping" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="false" COMMENT="Grouping id if applicable"/>
+            <FIELD NAME="groupid" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="false" COMMENT="Group id if applicable"/>
+            <FIELD NAME="commentdiscrepancy" TYPE="int" LENGTH="1" SEQUENCE="false" NOTNULL="true" DEFAULT="0" COMMENT="1 if comment discrepancy is found"/>
+            <FIELD NAME="markdiscrepancy" TYPE="int" LENGTH="1" SEQUENCE="false" NOTNULL="true" DEFAULT="0" COMMENT="1 if mark discrepancy is found"/>
+            <FIELD NAME="quicksubmissiondiscrepancy" TYPE="int" LENGTH="1" SEQUENCE="false" NOTNULL="true" DEFAULT="0" COMMENT="1 if quick submission discrepancy is found"/>
+            <FIELD NAME="misbehaviorcategory" TYPE="int" LENGTH="2" SEQUENCE="false" NOTNULL="true" DEFAULT="1" COMMENT="1-6 category from AI module"/>
+            <FIELD NAME="timecreated" TYPE="int" LENGTH="10" SEQUENCE="false" NOTNULL="true" COMMENT="Timestamp when flag was created"/>
+
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME="spevalid_fk" TYPE="foreign" FIELDS="spevalid" REFTABLE="speval" REFFIELDS="id"/>
+            <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+            <KEY NAME="peer_fk" TYPE="foreign" FIELDS="peerid" REFTABLE="user" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+            <INDEX NAME="uniq_user_peer_speval" UNIQUE="true" FIELDS="userid, peerid, spevalid"/>
+            <INDEX NAME="spevalid" UNIQUE="false" FIELDS="spevalid"/>
+        </INDEXES>
+    </TABLE>
+
+    </TABLES>
+</XMLDB>
